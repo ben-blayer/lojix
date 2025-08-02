@@ -1,0 +1,14 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "Install dependencies for Next.js, shadcn/ui, tailwindcss, prisma, react-router, framer-motion, lucide-react, and other required packages",
+      "command": "npm install next react react-dom tailwindcss postcss autoprefixer @prisma/client prisma @shadcn/ui framer-motion lucide-react react-router-dom @headlessui/react @radix-ui/react-select @radix-ui/react-avatar @radix-ui/react-progress @radix-ui/react-badge @radix-ui/react-card @radix-ui/react-input @radix-ui/react-button @radix-ui/react-sidebar @radix-ui/react-avatar @radix-ui/react-badge @radix-ui/react-card @radix-ui/react-progress @radix-ui/react-select",
+      "args": [],
+      "problemMatcher": [],
+      "group": "build",
+      "isBackground": false
+    }
+  ]
+}

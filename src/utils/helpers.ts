@@ -1,7 +1,7 @@
 // Pure utility functions
 
-import { DifficultyLevel, MathSubject, ActivityType } from '@/types';
-import { DIFFICULTY_COLORS, SUBJECT_ICONS, ACTIVITY_COLORS, ACTIVITY_ICONS, MOTIVATIONAL_MESSAGES } from './constants';
+import { DifficultyLevel, MathSubject, ActivityType, Exercise } from '@/types';
+import { DIFFICULTY_COLORS, SUBJECT_ICONS, ACTIVITY_COLORS, MOTIVATIONAL_MESSAGES } from './constants';
 
 /**
  * Gets the appropriate CSS classes for difficulty level
@@ -87,16 +87,16 @@ export const getArrayLength = <T>(array: T[] | undefined): number => {
  * Filters exercises based on search criteria
  */
 export const filterExercises = (
-  exercises: any[],
+  exercises: Exercise[],
   searchQuery: string,
   selectedGrade: string,
   selectedSubject: string,
   selectedDifficulty: string
-): any[] => {
+): Exercise[] => {
   return exercises.filter((exercise) => {
     const matchesSearch = exercise.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          exercise.subject.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesGrade = selectedGrade === "all" || exercise.grade === parseInt(selectedGrade);
+    const matchesGrade = selectedGrade === "all" || (exercise.grade !== undefined && exercise.grade === parseInt(selectedGrade));
     const matchesSubject = selectedSubject === "all" || exercise.subject === selectedSubject;
     const matchesDifficulty = selectedDifficulty === "all" || exercise.difficulty === selectedDifficulty;
 

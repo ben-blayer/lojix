@@ -44,12 +44,12 @@ export const ExerciseFilters: React.FC<ExerciseFiltersProps> = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">כל הכיתות</SelectItem>
-          <SelectItem value="1">כיתה א'</SelectItem>
-          <SelectItem value="2">כיתה ב'</SelectItem>
-          <SelectItem value="3">כיתה ג'</SelectItem>
-          <SelectItem value="4">כיתה ד'</SelectItem>
-          <SelectItem value="5">כיתה ה'</SelectItem>
-          <SelectItem value="6">כיתה ו'</SelectItem>
+          <SelectItem value="1">כיתה א&apos;</SelectItem>
+          <SelectItem value="2">כיתה ב&apos;</SelectItem>
+          <SelectItem value="3">כיתה ג&apos;</SelectItem>
+          <SelectItem value="4">כיתה ד&apos;</SelectItem>
+          <SelectItem value="5">כיתה ה&apos;</SelectItem>
+          <SelectItem value="6">כיתה ו&apos;</SelectItem>
         </SelectContent>
       </Select>
 

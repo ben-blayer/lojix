@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Play, Star } from 'lucide-react';
 
-import { Exercise } from '@/types';
+import { Exercise, DifficultyLevel, MathSubject } from '@/types';
 import { getDifficultyColor, getSubjectIcon, getArrayLength } from '@/utils/helpers';
 import { ROUTES } from '@/utils/constants';
 
@@ -31,7 +31,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index }) =
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-2xl">
-                {getSubjectIcon(exercise.subject as any)}
+                {getSubjectIcon(exercise.subject as MathSubject)}
               </div>
               <div>
                 <CardTitle className="text-lg hebrew-font">{exercise.title}</CardTitle>
@@ -47,7 +47,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index }) =
           <div className="flex items-center gap-2 mt-3">
             <Badge 
               variant="secondary" 
-              className={getDifficultyColor(exercise.difficulty as any)}
+              className={getDifficultyColor(exercise.difficulty as DifficultyLevel)}
             >
               {exercise.difficulty}
             </Badge>

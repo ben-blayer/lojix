@@ -5,20 +5,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { VerticalExerciseProps } from "@/types";
 
 export default function VerticalExercise({
   question,
   onAnswer,
   isAnswered,
   isCorrect,
-}: any) {
+}: VerticalExerciseProps) {
   const [answer, setAnswer] = useState("");
   const { vertical_layout } = question;
 
   const handleSubmit = () => {
-    onAnswer(answer);
+    onAnswer(parseInt(answer));
   };
-  const handleKeyPress = (e: any) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleSubmit();
   };
 
@@ -33,10 +34,10 @@ export default function VerticalExercise({
           {/* Numbers column */}
           <div className="flex-1">
             <div className="flex justify-end mb-3 text-4xl h-16">
-              <span>{vertical_layout.top_number}</span>
+              <span>{vertical_layout?.top_number}</span>
             </div>
             <div className="flex justify-end mb-3 text-4xl h-16">
-              <span>{vertical_layout.bottom_number}</span>
+              <span>{vertical_layout?.bottom_number}</span>
             </div>
             <div className="border-t-3 border-gray-800 my-2"></div>
             <div className="flex justify-end text-4xl h-16">
@@ -71,7 +72,7 @@ export default function VerticalExercise({
             <div className="h-16"></div>
             <div className="h-16 flex items-center">
               <span className="text-blue-600 font-bold text-5xl">
-                {vertical_layout.operator}
+                {vertical_layout?.operator}
               </span>
             </div>
             <div className="h-16"></div>
@@ -99,7 +100,7 @@ export default function VerticalExercise({
           >
             {isCorrect
               ? "נכון מאוד! 🎉"
-              : `התשובה הנכונה היא: ${vertical_layout.answer}`}
+              : `התשובה הנכונה היא: ${vertical_layout?.answer}`}
           </p>
           {question.explanation && (
             <p className="text-gray-600 hebrew-font text-lg">

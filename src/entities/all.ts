@@ -16,7 +16,9 @@ export interface Exercise {
   subject: string;
   difficulty: string;
   points: number;
+  grade?: number;
   type: 'vertical' | 'horizontal' | 'completion';
+  exercise_type?: 'multiple_choice' | 'vertical' | 'horizontal_completion' | 'vertical_completion' | 'dynamic_quiz';
   vertical_layout?: {
     top_number: number;
     bottom_number: number;
@@ -34,6 +36,34 @@ export interface Exercise {
     missing_position: 'left' | 'operator' | 'right' | 'answer';
     answer: string;
   };
+  explanation?: string;
+  questions?: Question[];
+}
+
+export interface Question {
+  id: string;
+  question: string;
+  vertical_layout?: {
+    top_number: number;
+    bottom_number: number;
+    operator: string;
+    answer: number;
+  };
+  horizontal_layout?: {
+    left_number: number;
+    operator: string;
+    right_number: number;
+    answer: number;
+  };
+  completion_data?: {
+    expression: string;
+    blanks: {
+      position: string;
+      correct_value: string;
+    }[];
+  };
+  correct_answer?: string | number;
+  options?: string[];
   explanation?: string;
 }
 

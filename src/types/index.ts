@@ -16,7 +16,9 @@ export interface Exercise {
   subject: string;
   difficulty: string;
   points: number;
+  grade?: number;
   type: 'vertical' | 'horizontal' | 'completion';
+  exercise_type?: 'multiple_choice' | 'vertical' | 'horizontal_completion' | 'vertical_completion' | 'dynamic_quiz';
   questions?: Question[];
   vertical_layout?: VerticalLayout;
   horizontal_layout?: HorizontalLayout;
@@ -32,6 +34,7 @@ export interface Question {
   completion_data?: CompletionData;
   correct_answer?: string | number;
   options?: string[];
+  explanation?: string;
 }
 
 export interface VerticalLayout {
@@ -136,6 +139,32 @@ export interface RecentActivity {
   score: number;
   date: string;
   duration: number;
+}
+
+export interface DynamicQuestion {
+  question: string;
+  answer: number;
+}
+
+export interface CompletionAnswers {
+  [key: string]: string;
+}
+
+export type FeedbackType = 'correct' | 'incorrect' | null;
+
+export interface CompletionExerciseProps {
+  question: Question;
+  onAnswer: (answers: CompletionAnswers) => void;
+  isAnswered: boolean;
+  userAnswers: CompletionAnswers;
+  isVertical?: boolean;
+}
+
+export interface VerticalExerciseProps {
+  question: Question;
+  onAnswer: (answer: number) => void;
+  isAnswered: boolean;
+  isCorrect: boolean;
 }
 
 export type DifficultyLevel = 'קל' | 'בינוני' | 'קשה';

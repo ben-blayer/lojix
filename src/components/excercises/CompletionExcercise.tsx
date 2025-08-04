@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { CompletionExerciseProps, CompletionAnswers } from "@/types";
 
 export default function CompletionExercise({
   question,
@@ -12,17 +12,17 @@ export default function CompletionExercise({
   isAnswered,
   userAnswers,
   isVertical = false,
-}: any) {
-  const [answers, setAnswers] = useState<any>({});
+}: CompletionExerciseProps) {
+  const [answers, setAnswers] = useState<CompletionAnswers>({});
   const { completion_data } = question;
 
   useEffect(() => {
     setAnswers({});
   }, [question]);
 
-  const handleInputChange = (position: any, value: any) => {
+  const handleInputChange = (position: string, value: string) => {
     if (value.length > 1) value = value.slice(-1); // Allow only single digit
-    setAnswers((prev: any) => ({ ...prev, [position]: value }));
+    setAnswers((prev) => ({ ...prev, [position]: value }));
   };
   const handleSubmit = () => {
     onAnswer(answers);
@@ -30,12 +30,13 @@ export default function CompletionExercise({
 
   const isCorrect = () => {
     if (!isAnswered) return false;
-    return completion_data.blanks.every(
-      (blank: any) => userAnswers[blank.position] === blank.correct_value
-    );
+    return completion_data?.blanks.every(
+      (blank) => userAnswers[blank.position] === blank.correct_value
+    ) || false;
   };
 
   const renderHorizontalExpression = () => {
+    if (!completion_data?.expression) return null;
     const parts = completion_data.expression.split("_");
     const elements = [];
     for (let i = 0; i < parts.length; i++) {
@@ -76,6 +77,7 @@ export default function CompletionExercise({
   };
 
   const renderVerticalCompletion = () => {
+    if (!completion_data?.expression) return null;
     const lines = completion_data.expression.split("\n");
     const operator = completion_data.expression.includes("×")
       ? "×"
@@ -83,21 +85,19 @@ export default function CompletionExercise({
       ? "+"
       : "-";
 
-    const renderLine = (line: any, lineKey: any) => {
+    const renderLine = (line: string, lineKey: string) => {
       if (!line) return <div className="h-16"></div>;
 
       const parts = line.trim().replace(operator, "").split("");
       return (
         <div className="flex justify-end items-center mb-3 text-4xl h-16">
-          {parts.map((part: any, index: any) => {
+          {parts.map((part, index) => {
             if (part === "_") {
               // This finds the correct blank based on its order in the line
               const blankIndexInLine =
-                parts.slice(0, index + 1).filter((p: any) => p === "_").length - 1;
+                parts.slice(0, index + 1).filter((p) => p === "_").length - 1;
               const position = `${lineKey}-${blankIndexInLine}`;
-              const blankData = completion_data.blanks.find(
-                (b: any) => b.position === position
-              );
+              // Find blank data for validation (unused but kept for future enhancement)
 
               return (
                 <Input
@@ -174,7 +174,7 @@ export default function CompletionExercise({
       {!isAnswered && (
         <Button
           onClick={handleSubmit}
-          disabled={Object.keys(answers).length < completion_data.blanks.length}
+          disabled={Object.keys(answers).length < (completion_data?.blanks.length || 0)}
           className="bg-purple-600 hover:bg-purple-700 hebrew-font text-lg px-8 py-3"
           size="lg"
         >

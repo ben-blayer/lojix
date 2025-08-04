@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import { Exercise } from "@/types";
 import { Exercise as ExerciseService } from "@/entities/all";
@@ -32,7 +32,7 @@ export default function ExercisesPage() {
     }
   };
 
-  const applyFilters = (): void => {
+  const applyFilters = useCallback((): void => {
     const filtered = filterExercises(
       exercises,
       searchQuery,
@@ -41,7 +41,7 @@ export default function ExercisesPage() {
       selectedDifficulty
     );
     setFilteredExercises(filtered);
-  };
+  }, [exercises, searchQuery, selectedGrade, selectedSubject, selectedDifficulty]);
 
   useEffect(() => {
     loadExercises();
@@ -49,7 +49,7 @@ export default function ExercisesPage() {
 
   useEffect(() => {
     applyFilters();
-  }, [exercises, searchQuery, selectedGrade, selectedSubject, selectedDifficulty]);
+  }, [applyFilters]);
 
   if (isLoading) {
     return <LoadingState />;

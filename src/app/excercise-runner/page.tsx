@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Exercise } from "@/entities/all";
+import { Exercise as ExerciseEntity } from "@/entities/all";
+import { Exercise, DynamicQuestion, CompletionAnswers, FeedbackType } from "@/types";
 import {
   Card,
   CardContent,
@@ -21,22 +22,22 @@ import CompletionExercise from "@/components/excercises/CompletionExcercise";
 
 const MAX_DYNAMIC_QUESTIONS = 5;
 
-export default function ExerciseRunner() {
+function ExerciseRunnerContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [exercise, setExercise] = useState<any>(null);
+  const [exercise, setExercise] = useState<Exercise | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<any>(null);
-  const [completionAnswers, setCompletionAnswers] = useState({});
+  const [selectedAnswer, setSelectedAnswer] = useState<string | number | null>(null);
+  const [completionAnswers, setCompletionAnswers] = useState<CompletionAnswers>({});
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
 
   // State for dynamic quiz type
   const [isDynamicQuiz, setIsDynamicQuiz] = useState(false);
-  const [dynamicQuestion, setDynamicQuestion] = useState<any>(null);
+  const [dynamicQuestion, setDynamicQuestion] = useState<DynamicQuestion | null>(null);
   const [dynamicUserAnswer, setDynamicUserAnswer] = useState("");
-  const [dynamicFeedback, setDynamicFeedback] = useState<any>(null);
+  const [dynamicFeedback, setDynamicFeedback] = useState<FeedbackType>(null);
 
   const generateDynamicQuestion = useCallback(() => {
     if (!exercise) return;
@@ -71,20 +72,13 @@ export default function ExerciseRunner() {
     setDynamicQuestion({ question, answer });
   }, [exercise]);
 
-  useEffect(() => {
-    const exerciseId = searchParams.get('id');
-    if (exerciseId) {
-      loadExercise(exerciseId);
-    }
-  }, [searchParams]);
-
-  const loadExercise = async (id: string) => {
+  const loadExercise = useCallback(async (id: string) => {
     try {
-      const exercises = await Exercise.list();
+      const exercises = await ExerciseEntity.list();
       const foundExercise = exercises.find((e) => e.id === id);
       if (foundExercise) {
         setExercise(foundExercise);
-        if ((foundExercise as any).exercise_type === "dynamic_quiz") {
+        if (foundExercise.exercise_type === "dynamic_quiz") {
           setIsDynamicQuiz(true);
           setScore(0);
           setCurrentQuestionIndex(1);
@@ -97,9 +91,16 @@ export default function ExerciseRunner() {
       console.error("Error loading exercise:", error);
       router.push('/excercises');
     }
-  };
+  }, [router, generateDynamicQuestion]);
 
-  const handleAnswerSubmit = (e: any) => {
+  useEffect(() => {
+    const exerciseId = searchParams.get('id');
+    if (exerciseId) {
+      loadExercise(exerciseId);
+    }
+  }, [searchParams, loadExercise]);
+
+  const handleAnswerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isDynamicQuiz) {
       handleDynamicAnswer();
@@ -107,7 +108,7 @@ export default function ExerciseRunner() {
   };
 
   const handleDynamicAnswer = () => {
-    if (!dynamicUserAnswer) return;
+    if (!dynamicUserAnswer || !dynamicQuestion) return;
 
     if (parseInt(dynamicUserAnswer) === dynamicQuestion.answer) {
       setScore((prev) => prev + 1);
@@ -128,35 +129,35 @@ export default function ExerciseRunner() {
     }, 1500);
   };
 
-  const handleMultipleChoiceAnswer = (answer: any) => {
+  const handleMultipleChoiceAnswer = (answer: string | number) => {
     if (isAnswered) return;
     setSelectedAnswer(answer);
     setIsAnswered(true);
-    if (answer === exercise.questions[currentQuestionIndex].correct_answer) {
+    if (exercise?.questions?.[currentQuestionIndex] && answer === exercise.questions[currentQuestionIndex].correct_answer) {
       setScore(score + 1);
     }
   };
 
-  const handleVerticalAnswer = (answer: any) => {
+  const handleVerticalAnswer = (answer: number) => {
     if (isAnswered) return;
     setSelectedAnswer(answer);
     setIsAnswered(true);
-    if (
-      answer === exercise.questions[currentQuestionIndex].vertical_layout.answer
+    if (exercise?.questions?.[currentQuestionIndex]?.vertical_layout && 
+      answer === exercise.questions[currentQuestionIndex].vertical_layout!.answer
     ) {
       setScore(score + 1);
     }
   };
 
-  const handleCompletionAnswer = (answers: any) => {
+  const handleCompletionAnswer = (answers: CompletionAnswers) => {
     if (isAnswered) return;
     setCompletionAnswers(answers);
     setIsAnswered(true);
 
-    const question = exercise.questions[currentQuestionIndex];
-    const isCorrect = question.completion_data.blanks.every((blank: any) => {
+    const question = exercise?.questions?.[currentQuestionIndex];
+    const isCorrect = question?.completion_data?.blanks.every((blank) => {
       return answers[blank.position] === blank.correct_value;
-    });
+    }) || false;
 
     if (isCorrect) {
       setScore(score + 1);
@@ -164,7 +165,7 @@ export default function ExerciseRunner() {
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < exercise.questions.length - 1) {
+    if (exercise?.questions && currentQuestionIndex < exercise.questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer(null);
       setCompletionAnswers({});
@@ -177,28 +178,29 @@ export default function ExerciseRunner() {
   const isAnswerCorrect = () => {
     if (isDynamicQuiz) return dynamicFeedback === "correct";
 
-    const currentQuestion = exercise.questions[currentQuestionIndex];
+    const currentQuestion = exercise?.questions?.[currentQuestionIndex];
     if (!currentQuestion) return false;
 
-    switch (exercise.exercise_type) {
+    switch (exercise?.exercise_type) {
       case "multiple_choice":
         return selectedAnswer === currentQuestion.correct_answer;
       case "vertical":
-        return selectedAnswer === currentQuestion.vertical_layout.answer;
+        return selectedAnswer === currentQuestion.vertical_layout?.answer;
       case "horizontal_completion":
       case "vertical_completion":
-        return currentQuestion.completion_data.blanks.every((blank: any) => {
-          return (completionAnswers as any)[blank.position] === blank.correct_value;
-        });
+        return currentQuestion.completion_data?.blanks.every((blank) => {
+          return completionAnswers[blank.position] === blank.correct_value;
+        }) || false;
       default:
         return false;
     }
   };
 
   const renderStandardExercise = () => {
-    const currentQuestion = exercise.questions[currentQuestionIndex];
+    const currentQuestion = exercise?.questions?.[currentQuestionIndex];
+    if (!currentQuestion) return null;
 
-    switch (exercise.exercise_type) {
+    switch (exercise?.exercise_type) {
       case "vertical":
         return (
           <VerticalExercise
@@ -231,9 +233,9 @@ export default function ExerciseRunner() {
               {currentQuestion.question}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {currentQuestion.options.map((option: any) => (
+              {currentQuestion.options?.map((option, index) => (
                 <Button
-                  key={option}
+                  key={`${option}-${index}`}
                   variant="outline"
                   className={`h-auto py-4 text-xl transition-all duration-300 border-2 ${getButtonClass(
                     option
@@ -308,9 +310,9 @@ export default function ExerciseRunner() {
     </form>
   );
 
-  const getButtonClass = (option: any) => {
+  const getButtonClass = (option: string | number) => {
     if (!isAnswered) return "bg-white hover:bg-blue-50";
-    const isCorrect =
+    const isCorrect = exercise?.questions?.[currentQuestionIndex] &&
       option === exercise.questions[currentQuestionIndex].correct_answer;
     const isSelected = option === selectedAnswer;
     if (isCorrect) return "bg-green-100 border-green-500 text-green-800";
@@ -346,13 +348,13 @@ export default function ExerciseRunner() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-lg text-gray-600 hebrew-font">
-                  סיימת את התרגיל "{exercise.title}"
+                  סיימת את התרגיל &quot;{exercise.title}&quot;
                 </p>
                 <div className="text-4xl font-bold text-blue-600">
                   {score} /{" "}
                   {isDynamicQuiz
                     ? MAX_DYNAMIC_QUESTIONS
-                    : exercise.questions.length}
+                    : exercise?.questions?.length || 0}
                 </div>
                 <p className="text-lg text-gray-800 hebrew-font">
                   צברת{" "}
@@ -361,8 +363,8 @@ export default function ExerciseRunner() {
                       (score /
                         (isDynamicQuiz
                           ? MAX_DYNAMIC_QUESTIONS
-                          : exercise.questions.length)) *
-                        exercise.points
+                          : exercise?.questions?.length || 1)) *
+                        (exercise?.points || 0)
                     )}
                   </span>{" "}
                   נקודות!{" "}
@@ -402,7 +404,7 @@ export default function ExerciseRunner() {
                     (currentQuestionIndex /
                       (isDynamicQuiz
                         ? MAX_DYNAMIC_QUESTIONS
-                        : exercise.questions.length)) *
+                        : exercise?.questions?.length || 1)) *
                     100
                   }
                   className="w-full"
@@ -437,7 +439,7 @@ export default function ExerciseRunner() {
                     disabled={!isAnswered}
                     className="w-full hebrew-font"
                   >
-                    {currentQuestionIndex < exercise.questions.length - 1
+                    {currentQuestionIndex < (exercise?.questions?.length || 1) - 1
                       ? "השאלה הבאה"
                       : "סיים תרגיל"}
                   </Button>
@@ -448,5 +450,20 @@ export default function ExerciseRunner() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function ExerciseRunner() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 hebrew-font">טוען תרגיל...</p>
+        </div>
+      </div>
+    }>
+      <ExerciseRunnerContent />
+    </Suspense>
   );
 }

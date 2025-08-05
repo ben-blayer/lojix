@@ -5,13 +5,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Exercise } from "@/types";
 import { Exercise as ExerciseService } from "@/entities/all";
 import { filterExercises } from "@/utils/helpers";
+import { withStudentOrParentAuth } from "@/components/auth/withAuth";
 import { ExerciseFilters } from "@/components/exercises/ExerciseFilters";
 import { ExerciseCard } from "@/components/exercises/ExerciseCard";
 import { ExerciseHeader } from "./components/ExerciseHeader";
 import { LoadingState } from "./components/LoadingState";
 import { EmptyState } from "./components/EmptyState";
 
-export default function ExercisesPage() {
+function ExercisesPage() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -88,3 +89,5 @@ export default function ExercisesPage() {
     </div>
   );
 }
+
+export default withStudentOrParentAuth(ExercisesPage);

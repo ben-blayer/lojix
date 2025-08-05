@@ -38,9 +38,20 @@ export const ACTIVITY_COLORS = {
 
 export const ROUTES = {
   home: '/',
+  auth: '/auth',
   student: '/student',
   parent: '/parent',
+  admin: '/admin',
   exercises: '/excercises',
   exerciseRunner: '/excercise-runner',
   lessons: '/lessons'
+} as const;
+
+export const AUTH_STORAGE_KEY = 'lojix_auth_user';
+export const AUTH_TOKEN_KEY = 'lojix_auth_token';
+
+export const ROLE_REDIRECT_MAP = {
+  student: ROUTES.student,
+  parent: ROUTES.parent,
+  admin: ROUTES.admin
 } as const;

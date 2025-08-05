@@ -170,3 +170,58 @@ export interface VerticalExerciseProps {
 export type DifficultyLevel = 'קל' | 'בינוני' | 'קשה';
 export type MathSubject = 'חיבור' | 'חיסור' | 'כפל' | 'חילוק';
 export type ActivityType = 'exercise' | 'lesson' | 'game';
+
+// Authentication types
+export type UserRole = 'student' | 'parent' | 'admin';
+export type AuthProvider = 'google' | 'facebook' | 'apple' | 'email';
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string;
+  role: UserRole;
+  provider: AuthProvider;
+  createdAt: Date;
+  lastLoginAt: Date;
+}
+
+export interface AuthState {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  error: string | null;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterCredentials {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  name: string;
+  role: UserRole;
+}
+
+export interface SocialAuthResult {
+  success: boolean;
+  user?: User;
+  error?: string;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  error: string | null;
+  login: (credentials: LoginCredentials) => Promise<boolean>;
+  register: (credentials: RegisterCredentials) => Promise<boolean>;
+  loginWithGoogle: () => Promise<SocialAuthResult>;
+  loginWithFacebook: () => Promise<SocialAuthResult>;
+  loginWithApple: () => Promise<SocialAuthResult>;
+  logout: () => Promise<void>;
+  clearError: () => void;
+}

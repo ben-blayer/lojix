@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Exercise as ExerciseEntity } from "@/entities/all";
 import { Exercise, DynamicQuestion, CompletionAnswers, FeedbackType } from "@/types";
+import { withStudentOrParentAuth } from "@/components/auth/withAuth";
 import {
   Card,
   CardContent,
@@ -453,7 +454,7 @@ function ExerciseRunnerContent() {
   );
 }
 
-export default function ExerciseRunner() {
+function ExerciseRunner() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center h-screen">
@@ -467,3 +468,5 @@ export default function ExerciseRunner() {
     </Suspense>
   );
 }
+
+export default withStudentOrParentAuth(ExerciseRunner);

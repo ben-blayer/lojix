@@ -14,6 +14,7 @@ import {
   loadSubjectProgress, 
   loadRecentActivities 
 } from "@/services/parentService";
+import { withParentAuth } from "@/components/auth/withAuth";
 import { ChildSelector } from "@/components/parent/ChildSelector";
 import { ParentDashboardStats } from "@/components/parent/ParentDashboardStats";
 import { PageHeader } from "./components/PageHeader";
@@ -22,7 +23,7 @@ import { SubjectProgressChart } from "./components/SubjectProgressChart";
 import { RecentActivitiesList } from "./components/RecentActivitiesList";
 import { LoadingState } from "./components/LoadingState";
 
-export default function ParentDashboardPage() {
+function ParentDashboardPage() {
   const [children, setChildren] = useState<ChildData[]>([]);
   const [selectedChild, setSelectedChild] = useState<ChildData | null>(null);
   const [weeklyProgress, setWeeklyProgress] = useState<WeeklyProgressData[]>([]);
@@ -85,3 +86,5 @@ export default function ParentDashboardPage() {
     </div>
   );
 }
+
+export default withParentAuth(ParentDashboardPage);

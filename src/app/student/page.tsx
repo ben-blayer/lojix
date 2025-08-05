@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 
 import { Student, RecentProgress, RecommendedActivity, WeeklyGoal } from "@/types";
 import { loadStudentData, loadRecentProgress, loadRecommendedActivities } from "@/services/studentService";
+import { withStudentAuth } from "@/components/auth/withAuth";
 import { getRandomMotivationalMessage } from "@/utils/helpers";
 import { StudentStats } from "@/components/student/StudentStats";
 import { WeeklyGoalCard } from "@/components/student/WeeklyGoalCard";
@@ -13,7 +14,7 @@ import { RecommendedActivitiesCard } from "./components/RecommendedActivitiesCar
 import { QuickActionButtons } from "./components/QuickActionButtons";
 import { LoadingState } from "./components/LoadingState";
 
-export default function StudentHomePage() {
+function StudentHomePage() {
   const [studentData, setStudentData] = useState<Student | null>(null);
   const [recentProgress, setRecentProgress] = useState<RecentProgress[]>([]);
   const [recommendedActivities, setRecommendedActivities] = useState<RecommendedActivity[]>([]);
@@ -67,3 +68,5 @@ export default function StudentHomePage() {
     </div>
   );
 }
+
+export default withStudentAuth(StudentHomePage);
